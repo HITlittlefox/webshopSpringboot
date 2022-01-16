@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="shortcut icon" href="#"/>
+	<link rel="stylesheet" href="layui/css/layui.css"  media="all">
+</head>
+<body>
+	
+	<table class="layui-hide" id="test" lay-filter="test"></table>
+ 
+	<script type="text/html" id="toolbarDemo">
+	  <div class="layui-btn-container">
+		<button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+		<button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+		<button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+	  </div>
+	</script>
+	
+	<script type="text/html" id="barDemo">
+	  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+	  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+	</script>
+
+	<script type="text/html" id="img">
+		<!-- 这里的 checked 的状态只是演示 -->
+		<img src="images/{{d.fileName}}">
+	</script>
+          
+	<script src="layui/layui.js" charset="utf-8"></script>
+	<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 --> 
+	 
+	<script>
+	layui.use('table', function(){
+	  var table = layui.table;
+	  
+	  table.render({
+		elem: '#test'
+		,url:'/product/findAllTableProduct'
+		,toolbar: '#toolbarDemo'
+		,title: '用户数据表'
+		,totalRow: true
+		,cols: [
+				[
+		  {type: 'checkbox', fixed: 'left'}
+		  ,{field:'id', title:'ID', width:80, sort: true, totalRowText: '合计'}
+		  ,{field:'name', title:'商品名', width:120}
+		  ,{field:'description', title:'商品描述', width:150}
+		  ,{field:'price', title:'价格', width:80, sort: true, totalRow: true}
+		  ,{field:'stock', title:'库存', width:80, sort: true, totalRow: true}
+		  ,{field:'levelOne', title:'一级分类', width:150}
+		  ,{field:'levelTwo', title:'二级分类', width:150}
+		  ,{field:'levelThree', title:'三级分类', width:150}
+		  ,{field:'fileName', title:'图片', templet: '#img', width:120}
+		  ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+		]
+		  ]
+		,page: true
+	  });
+	  
+	  //工具栏事件
+	  table.on('toolbar(test)', function(obj){
+		var checkStatus = table.checkStatus(obj.config.id);
+		switch(obj.event){
+		  case 'getCheckData':
+			var data = checkStatus.data;
+			layer.alert(JSON.stringify(data));
+		  break;
+		  case 'getCheckLength':
+			var data = checkStatus.data;
+			layer.msg('选中了：'+ data.length + ' 个');
+		  break;
+		  case 'isAll':
+			layer.msg(checkStatus.isAll ? '全选': '未全选')
+		  break;
+		};
+	  });
+	  
+	  table.on('tool(test)', function(obj){
+	      var data = obj.data;
+	      if(obj.event === 'detail'){
+	        layer.msg('ID：'+ data.id + ' 的查看操作');
+	      } else if(obj.event === 'del'){
+	        layer.confirm('真的删除行么', function(index){
+	          obj.del();
+	          layer.close(index);
+	        });
+	      } else if(obj.event === 'edit'){
+	        layer.alert('编辑行：<br>'+ JSON.stringify(data))
+	      }
+	    });
+	  
+	});
+	</script>
+
+</body>
+</html>
